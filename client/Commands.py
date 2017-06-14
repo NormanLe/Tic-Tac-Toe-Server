@@ -1,8 +1,10 @@
 ''' Functions to support commands input by user.
 '''
-from const import *
-import MessageHandler
 import sys
+
+import MessageHandler
+from const import *
+
 
 def help():
     ''' This command takes no argument. It prints a list of supported commands, which are ones in
@@ -11,7 +13,8 @@ def help():
     '''
     print("Supported commands:")
     print("help : Print a list of supported commands")
-    print("login [name] [mode]: Login to the game server. Takes 2 arguments, [name] and [mode], A for automatch, M for automatch off")
+    print(
+        "login [name] [mode]: Login to the game server. Takes 2 arguments, [name] and [mode], A for automatch, M for automatch off")
     print("place [n] : Issues a move. Takes one argument [n], which is between 1 and 9 inclusive")
     print("exit : Exit the server")
     print("who : List all players logged in")
@@ -46,9 +49,10 @@ def login(s, state, name, mode):
             MessageHandler.handle_unrecognized(s, state, response)
         response = s.read_message()
 
+
 def place(s, state, n):
     '''This command issues a move. It takes one argument n, which is between 1 and 9 inclusive.
-    It identify a cell that the player chooses to occupy at this move. 
+    It identify a cell that the player chooses to occupy at this move.
     If all is well, the new game state is received from the server and displayed.'''
     try:
         n = int(n)
@@ -57,6 +61,7 @@ def place(s, state, n):
         return
     # Send place message to server
     s.send(PLACE(n))
+
 
 def exit(s, state):
     ''' This command allows player to exit '''
@@ -92,10 +97,24 @@ def games(s):
     s.send(GAMES)
     # nothing else needs to be done, just wait for response
 
+
 def who(s):
     s.send(WHO)
     # nothing else needs to be done, just wait for response
 
+
 def play(s, name):
     s.send(PLAY(name))
     # nothing else needs to be done, just wait for found/error
+
+
+def observe(s, name):
+    s.send(OBSERVE(name))
+
+
+def unobserve(s, name):
+    s.send(UNOBSERVE(name))
+
+
+def message(s, message):
+    s.send(message)

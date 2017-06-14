@@ -1,16 +1,18 @@
 ''' Classes to be used by client program '''
 
-from socket import socket, AF_INET, SOCK_STREAM
-from collections import deque
-from const import *
 import sys
+from collections import deque
+from socket import socket, AF_INET, SOCK_STREAM
+
+from const import *
 
 
 class TTTSocket():
-    ''' Wrapper for a TCP socket for TicTacToe game. Will automatically 
-    append protocol delimiter to end of messages, and encode messages 
-    to bytes. Also will read messages delimited by provided delim to 
+    ''' Wrapper for a TCP socket for TicTacToe game. Will automatically
+    append protocol delimiter to end of messages, and encode messages
+    to bytes. Also will read messages delimited by provided delim to
     handle multiple messages in buffer '''
+
     def __init__(self):
         self.s = socket(AF_INET, SOCK_STREAM)
         self.delim = DELIM
@@ -19,7 +21,7 @@ class TTTSocket():
     def connect(self, server_name, server_port):
         '''Connect to specified server name and server port'''
         self.s.connect((server_name, server_port))
-    
+
     def close(self):
         ''' Close socket '''
         self.s.close()
@@ -37,7 +39,7 @@ class TTTSocket():
 
     def recv_messages(self):
         ''' Retrieve messages from socket and store in list'''
-        #debug
+        # debug
         raw = self.s.recv(1024).decode()
         # Printing un trimmed / split message from socket for debugging
         if len(sys.argv) == 4 and sys.argv[3] == "DEBUG":
@@ -52,10 +54,12 @@ class TTTSocket():
             self.s.close()
             sys.exit()
         self.recvd_msgs.extend(new_messages)
-    
+
+
 class ClientState():
-    ''' Maintain state of client to appropraitely respond to 
+    ''' Maintain state of client to appropraitely respond to
     incoming messages from server '''
+
     def __init__(self):
         self.logged_in = False
         self.found_game = False
@@ -65,18 +69,22 @@ class ClientState():
         self.mark = None
         self.name = ""
         self.opponent = ""
+        self.is_observer = False
         # Mode: A for automatch, M for not automatch (part 2). Specified at login
-        self.mode = "" 
-    
+        self.mode = ""
+
     def clear_game(self):
         self.is_turn = False
         self.in_game = False
         self.mark = None
+        self.is_observer = False
+
 
 class GameState():
     """ This class is constructed by an incoming GAME, END, or TIE message
     and contains methods to parse the message and display the current status
     of the game """
+
     def __init__(self, state, message):
         self.turn = None
         self.finished = False
@@ -84,14 +92,14 @@ class GameState():
         self.winner = None
         self.parse_game_msg(message)
         self.state = state
-    
+
     def parse_game_msg(self, message):
         """ Initialize GameState object by parsing GAME message """
         words = message.split()
         start_index = 2
         game_state_list = []
-       
-        for i in range(start_index, start_index+9):
+
+        for i in range(start_index, start_index + 9):
             game_state_list.append(words[i])
         if len(game_state_list) < 9:
             pass
@@ -105,7 +113,6 @@ class GameState():
                 self.tie = True
             else:
                 self.winner = words[1]
-        
 
     def display_game_board(self):
         ''' Takes sequence of E/X/O and prints out a game board '''
@@ -119,7 +126,7 @@ class GameState():
             else:
                 print("|", end='', flush=True)
         sys.stdout.flush()
-    
+
     def show_game(self):
         """ Show the game board and whos turn it is, or the outcome if it's ended already """
         self.display_game_board()

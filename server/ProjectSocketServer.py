@@ -1,21 +1,27 @@
-import queue
 import threading
 import sys
 
 from ServerClasses import *
 
 if __name__ == '__main__':
-    HOST, PORT = 'localhost', 7000
 
-    # Dictionary to hold games, with the key being the game ID
-    games = {}
-    # A queue to hold awaiting players
-    user_queue = queue.Queue()
-    # A dictionary to hold all players, either playing or waiting, with the keys being their file descriptor
-    user_list = {}
+    # Tell user if they did not provide enough arguments to the program
+    if len(sys.argv) < 2:
+        print("Error: not enough arguments provided")
+        print("Provide a port")
+        sys.exit()
+
+    # Check that port is a number
+    try:
+        int(sys.argv[1])
+    except ValueError:
+        print("Error: The 1st argument (port) should be an integer.")
+        sys.exit()
+
+    HOST, PORT = 'localhost', int(sys.argv[1])
 
     # Create the server, binding to localhost on port 7000
-    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPHandler, games, user_queue, user_list, threading.Lock(), 0)
+    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPHandler, {}, [], {}, {}, threading.Lock(), 0)
 
     # Start a thread with the server -- that thread will then start one more thread for each request
     server_thread = threading.Thread(target=server.serve_forever)

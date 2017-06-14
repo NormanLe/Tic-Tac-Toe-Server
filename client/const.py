@@ -17,6 +17,12 @@ ERR408 = "408 ERROR"
 ERR409 = "409 ERROR"
 ERR410 = "410 ERROR"
 ERR411 = "411 ERROR"
+ERR412 = "412 ERROR"
+ERR413 = "413 ERROR"
+ERR414 = "414 ERROR"
+ERR415 = "415 ERROR"
+ERR416 = "416 ERROR"
+ERR417 = "417 ERROR" 
 
 ''' Messages without parameters '''
 EXIT = "EXIT"
@@ -24,18 +30,27 @@ QUIT = "QUIT"
 SEARCH = "SEARCH"
 WHO = "WHO"
 GAMES = "GAMES"
-
+MSG = "MSG"
 
 ''' Messages with parameters '''
 
+
 def PLACE(n):
-    return "PLACE " + str(n-1)
+    return "PLACE " + str(n - 1)
+
 
 def PLAY(name):
     return "PLAY " + name
+
 
 def LOGIN(name, mode):
     if mode == None:
         mode = "A"
     return "LOGIN " + name + " " + mode
 
+def OBSERVE(name):
+    return "OBSERVE " + name
+
+
+def UNOBSERVE(name):
+    return "UNOBSERVE " + name

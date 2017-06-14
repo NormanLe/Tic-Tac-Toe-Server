@@ -7,14 +7,15 @@ arguments: (i) the name of the machine on which the server program is running,
 (ii) the port number that the server is listening at.
 """
 
-import signal
+import errno
 import selectors
+import signal
 import sys
 from socket import error as socket_error
-import errno
+
+import Commands
 from ClientClasses import TTTSocket, ClientState
 from Input import parse_cmd, read_socket
-import Commands
 
 # Tell user if they did not provide enough arguments to the program
 if len(sys.argv) < 3:
@@ -44,10 +45,12 @@ except socket_error as serr:
         print("Error: Connection Refused.")
         sys.exit()
 
+
 # Signal handler for ctrl + C
 def sigint_handler(signal, frame):
     Commands.exit(s, None)
     sys.exit(0)
+
 
 # Install signal handler
 signal.signal(signal.SIGINT, sigint_handler)
@@ -62,9 +65,8 @@ state = ClientState()
 sel = selectors.DefaultSelector()
 sel.register(s.s, selectors.EVENT_READ, read_socket)
 sel.register(sys.stdin, selectors.EVENT_READ, parse_cmd)
-while True: 
+while True:
     events = sel.select()
     for key, mask in events:
         callback = key.data
         callback(s, state)
-

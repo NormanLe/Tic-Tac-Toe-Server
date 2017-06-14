@@ -1,9 +1,13 @@
 ''' Module containing functions for handling messages '''
 import sys
+
 from ClientClasses import GameState
 from const import *
+
 ''' The messages below can be received while waiting on a socket,
 or at any other time '''
+
+
 def handle_quit(s, state, message):
     ''' Handle QUIT messages '''
     # Check if you initialized quit
@@ -26,6 +30,7 @@ def handle_quit(s, state, message):
         if state.mode == 'A':
             print("Searching for new game ...\n")
 
+
 def handle_game(s, state, message):
     ''' Handle GAME messages '''
     # # TODO: Check if state is valid to receive game message
@@ -33,15 +38,16 @@ def handle_game(s, state, message):
     #     print("Game message received unexpectedly. ")
 
     # Initialize state to game parameters if not set
-    if not state.in_game:
-        state.found_game = False # clear found field because starting
+    if not state.in_game and not state.is_observer:
+        state.found_game = False  # clear found field because starting
         state.in_game = True
         state.mark = "X" if message.split()[1] == state.name else "O"
         print("Game started.")
         print("Your mark is " + state.mark + ".\n")
 
-    # Initialize turn
-    state.is_turn = True if message.split()[1] == state.name else False
+    if not state.is_observer:
+        # Initialize turn
+        state.is_turn = True if message.split()[1] == state.name else False
 
     # Display Game
     game = GameState(state, message)
@@ -68,6 +74,7 @@ def handle_end(s, state, message):
     if state == 'A':
         print("Searching for game ... \n")
 
+
 def handle_found(s, state, message):
     ''' Handle FOUND (info about game before it starts ) messages '''
     # respond with OK
@@ -81,18 +88,17 @@ def handle_found(s, state, message):
     print("Game found vs " + message.split()[1] + "\n")
 
 
-
 def handle_users(s, state, message):
     ''' Handle USERS message (response to who) and print out a list of available users '''
     # Trim start of message: assuming messsage ends with " \r\n\r\n"
     message = message[6:]
     users = message.split(" \r\n")
 
-    #TODO: confirm available users are being sent 
+    # TODO: confirm available users are being sent
     print("List of available logged in users:")
     for user in users:
         print(user)
-    
+
 
 def handle_gameid(s, state, message):
     ''' Handle GAMEID message'''
@@ -105,8 +111,8 @@ def handle_gameid(s, state, message):
     if len(games) < 2:
         words = games[0].split()
         if len(words) == 3:
-             print("GameID\tUser1\tUser2")
-             print(words[0] + "\t" + words[1] + "\t" + words[2])
+            print("GameID\tUser1\tUser2")
+            print(words[0] + "\t" + words[1] + "\t" + words[2])
         else:
             print("No games are currently being played.")
         return
@@ -119,12 +125,13 @@ def handle_gameid(s, state, message):
     print("\n")
 
 
-
 def handle_unrecognized(s, state, message):
     ''' Handle unrecognized messages '''
     print("Ignoring unrecognized message: " + message)
 
+
 ''' The messages below should only be received while waiting on socket'''
+
 
 def handle_error(s, state, message):
     ''' HANDLE 402-405 Errors '''
@@ -147,11 +154,24 @@ def handle_error(s, state, message):
     elif message == ERR409:
         print("Error, you're already in a game\n")
     elif message == ERR410:
-        print("Error, you can't challenge a player logged in on Automatch mode")
+        print("Error, you can't challenge a player logged in on Automatch mode\n")
     elif message == ERR411:
-        print("Error, you can't use the play command when logged in on Automatch mode")
+        print("Error, you can't use the play command when logged in on Automatch mode\n")
+    elif message == ERR412:
+        print("Error, you can't use the play command when not logged in\n")
+    elif message == ERR413:
+        print("Error, can't observe when you're in a game\n")
+    elif message == ERR414:
+        print("Error, game does not exist so it cannot be observed\n")
+    elif message == ERR415:
+        print("Error, can't use the unobserve command when you weren't observing a game\n")
+    elif message == ERR416:
+        print("Error, can't chat without being logged in and spectating a game\n")
+    elif message == ERR417:
+        print("Error, can't observe without being logged in\n")
     else:
         print("Unidentified error: " + message + "\n")
+
 
 def handle_login(s, state, message, name, mode):
     ''' Handle Response to LOGIN '''
@@ -167,8 +187,7 @@ def handle_login(s, state, message, name, mode):
     if message == ERR401:
         print("Login failure. Try a different name\n")
 
-
-
-
-
-
+def handle_message(s, state, message):
+    message = message.split()
+    print(message[1], ':', end = '', flush = True)
+    print(message[2] if len(message) == 3 else '')

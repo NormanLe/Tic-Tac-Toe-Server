@@ -1,8 +1,9 @@
-''' Module for reading and control flow of input from stdin 
+''' Module for reading and control flow of input from stdin
 and data received from socket'''
 
 import Commands
 import MessageHandler
+
 
 def parse_cmd(s, state):
     ''' Called when there is input available from STDIN. Check if user entered a valid command,
@@ -37,11 +38,21 @@ def parse_cmd(s, state):
     elif args[0] == "play":
         if len(args) == 2:
             Commands.play(s, args[1])
-        else: 
+        else:
             print("Incorrect number of arguments for play")
+    elif args[0] == "observe":
+        if len(args) == 2:
+            Commands.observe(s, args[1])
+        else:
+            print("Incorrect number of arguments for observe")
+    elif args[0] == "unobserve":
+        if len(args) == 2:
+            Commands.unobserve(s, args[1])
+        else:
+            print("Incorrect number of arguments for unobserve")
     else:
-        print("Command not recognized. \n")
-        Commands.help()
+        Commands.message(s, args[0])
+
 
 def read_socket(s, state):
     ''' Called when select says socket is ready to be read from .
@@ -53,7 +64,7 @@ def read_socket(s, state):
 
     # Retrieve first unprocessed message from queue
     message = s.read_message()
-    
+
     # While there are unprocessed messages, process them
     while message:
         # Call appropriate Message Handling function depending on message structure
@@ -71,8 +82,9 @@ def read_socket(s, state):
             MessageHandler.handle_gameid(s, state, message)
         elif message.split()[0] == "USERS":
             MessageHandler.handle_users(s, state, message)
+        elif message.split()[0] == "MSG":
+            MessageHandler.handle_message(s, state, message)
         elif len(message.split()) > 1 and message.split()[1] == "ERROR":
             MessageHandler.handle_error(s, state, message)
         # Process the next message
         message = s.read_message()
-       
